@@ -1,5 +1,6 @@
 # Decentro
 
+```
 git clone ---
 cd client
 npm i
