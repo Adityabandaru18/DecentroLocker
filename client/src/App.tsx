@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import { Shield, Lock, Share2, Database, Server, UserCircle, ChevronRight } from 'lucide-react';
 import { Link } from "react-scroll";
-import { Modal } from './Modal';
-
+import { Modal } from './components/Modal';
+import { ChatBot } from './components/ChatBot';
 function Feature({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
   return (
     <div className="flex flex-col items-start p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -160,6 +160,7 @@ function App() {
           </div>
         </footer>
       </div>
+      <ChatBot />
     </div>
   );
 }
