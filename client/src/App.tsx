@@ -3,6 +3,8 @@ import { Shield, Lock, Share2, Database, Server, UserCircle, ChevronRight } from
 import { Link } from "react-scroll";
 import { Modal } from './components/Modal';
 import { ChatBot } from './components/ChatBot';
+import { Link as RouterLink } from "react-router-dom";
+
 function Feature({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
   return (
     <div className="flex flex-col items-start p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
@@ -137,7 +139,7 @@ function App() {
               onClick={() => setIsModalOpen(false)}
               className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
             >
-              Proceed
+              <RouterLink to="/login">Proceed</RouterLink>
             </button>
           </div>
         </div>
