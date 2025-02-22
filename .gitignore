@@ -128,3 +128,43 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Ignore everything inside the server folder that should not be tracked
+server/__pycache__/
+server/*.py[cod]
+server/*.so
+server/*.egg-info/
+server/*.dist-info/
+server/*.log
+
+
+# Virtual Environment
+server/decentro-venv/
+server/.env
+server/*.env
+server/.env.local
+server/Pipfile
+server/Pipfile.lock
+
+# IDE and Editor files
+server/.vscode/
+server/.idea/
+server/*.swp
+server/*.swo
+server/*.swn
+server/*.bak
+
+# OS-specific files
+server/.DS_Store
+server/Thumbs.db
+
+# Docker
+server/docker-compose.override.yml
+server/*.pid
+server/*.sock
+
+# FastAPI-specific
+server/instance/
+server/storage/
+server/media/
+server/logs/
