@@ -131,6 +131,7 @@ dist
 
 # Ignore everything inside the server folder that should not be tracked
 server/__pycache__/
+server/Controllers/__pycache__/
 server/*.py[cod]
 server/*.so
 server/*.egg-info/
