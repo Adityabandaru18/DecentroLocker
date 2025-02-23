@@ -157,7 +157,7 @@ function App() {
               <span className="text-xl font-bold">DecentroLocker</span>
             </div>
             <div className="text-gray-600">
-              © 2025 DecentroLocker. All rights reserved.
+              © {new Date().getFullYear()} DecentroLocker. All rights reserved.
             </div>
           </div>
         </footer>
