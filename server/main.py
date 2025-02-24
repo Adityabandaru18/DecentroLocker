@@ -1,10 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from Controllers.groq_implementation import PersonalChatBot
-from groq import Groq
-from dotenv import dotenv_values
-import os
-import re
 
 app = FastAPI()
 client_chat_bot = PersonalChatBot()
