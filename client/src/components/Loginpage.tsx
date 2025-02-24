@@ -1,31 +1,88 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Link } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Loader2 } from "lucide-react";
+
 declare global {
   interface Window {
-    ethereum?: import("ethers").Eip1193Provider;
+    ethereum?: import("ethers").Eip1193Provider | any;
   }
 }
 
 const Login: React.FC = () => {
-  const [walletAddress, setWalletAddress] = useState<string>("");
+  const [accounts, setAccounts] = useState<string[]>([]);
+  const [currentSelected, setCurrentSelected] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    checkConnected();
+  }, []);
+
+  const checkConnected = async () => {
+    if (window.ethereum) {
+      try {
+        const accs = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accs && accs.length > 0) {
+          setAccounts(accs);
+          setCurrentSelected(accs[0]);
+        }
+      } catch (error) {
+        setError("Connection Error!");
+        setTimeout(() => setError(""), 2000);
+      }
+    } else {
+      setError("Please install MetaMask!");
+      setTimeout(() => setError(""), 2000);
+    }
+  };
 
   const connectWallet = async (): Promise<void> => {
     if (window.ethereum) {
       try {
+        setIsLoading(true);
         const provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts: string[] = await provider.send("eth_requestAccounts", []);
-        setWalletAddress(accounts[0]); 
-      } catch (error) {
+        const accounts: string[] = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setAccounts(accounts);
+        setCurrentSelected(accounts[0]);
+      } catch (error: any) {
+        if (error.code === 4001) {
+          setError("User refused to connect!");
+          setTimeout(() => setError(""), 2000);
+        }
         console.error("Error connecting to MetaMask:", error);
+      } finally {
+        setIsLoading(false);
       }
     } else {
       alert("MetaMask is not installed. Please install MetaMask and try again.");
     }
+  };
+
+  const handleAccountSelect = (value: string) => {
+    setCurrentSelected(value);
+  };
+
+  const connectButtonHandler = async () => {
+    setIsLoading(true);
+    if (accounts.includes(currentSelected)) {
+      // Handle existing account connection
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        // Navigate or handle successful connection here
+      } catch (error) {
+        console.error("Error connecting with selected account:", error);
+      }
+    } else {
+      await connectWallet();
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -40,21 +97,45 @@ const Login: React.FC = () => {
           </div>
           <CardTitle className="text-2xl text-center">Connect with MetaMask</CardTitle>
           <CardDescription className="text-center">
-            Enter your wallet address to continue
+            Select an account to continue
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="wallet">Wallet Address</Label>
-              <Input id="wallet" value={walletAddress} readOnly placeholder="0x..." className="w-full" />
+              <Label htmlFor="account">Select Account</Label>
+              <Select value={currentSelected} onValueChange={handleAccountSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account, index) => (
+                    <SelectItem key={index} value={account}>
+                      {account}
+                    </SelectItem>
+                  ))}
+                  {accounts.length === 0 && (
+                    <SelectItem value="new">New Account</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
-            <Button onClick={connectWallet} className="w-full bg-orange-500 hover:bg-orange-600">
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 318.6 318.6">
-                <path style={{ fill: "#ffffff" }} d="M274.1 35.5l-99.5 73.9L193 65.8z" />
-              </svg>
-             <Link to="/user"> Connect Wallet
-             </Link> 
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
+            <Button
+              onClick={connectButtonHandler}
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <svg className="mr-2 h-4 w-4" viewBox="0 0 318.6 318.6">
+                  <path style={{ fill: "#ffffff" }} d="M274.1 35.5l-99.5 73.9L193 65.8z" />
+                </svg>
+              )}
+              {isLoading ? "Connecting..." : "Connect Wallet"}
             </Button>
           </div>
         </CardContent>
