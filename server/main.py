@@ -9,7 +9,11 @@ class Message(BaseModel):
     role: str
     content: str
 
-@app.get("/initial")
+@app.get('/')
+async def index():
+    return "server is running!"
+
+@app.post("/initial")
 async def index():
     response = client_chat_bot.initial_prompt()
     return Message(role='assistant', content=response)
