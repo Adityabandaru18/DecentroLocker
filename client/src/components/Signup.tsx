@@ -10,19 +10,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {contractSigner} from "./contractTemplate";
+import { useNavigate } from 'react-router-dom';
+import useStore from '@/store';
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    password: '',
     phoneNumber: '',
     role: ''
   });
+  const {addUser} = useStore();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const new_user = {firstName: formData.firstName, lastName: formData.lastName, email: formData.email, phoneNumber: formData.phoneNumber, role: formData.role};
+    addUser(new_user);
+
+    if(formData.role === "user"){
+      await contractSigner.RegisterUser(formData.firstName.toString(), formData.lastName.toString(), formData.email.toString(), formData.phoneNumber.toString());
+      navigate('/user');
+    }
+    else if(formData.role === "verifier"){
+      await contractSigner.RegisterVerifier(formData.firstName, formData.lastName, formData.email, formData.phoneNumber);
+      navigate('/verifier');
+    }
+    
+    else if(formData.role === "admin"){
+      await contractSigner.RegisterAdmin(formData.firstName, formData.lastName, formData.email, formData.phoneNumber);
+      navigate('/admin');
+    }
+ 
     console.log('Form submitted:', formData);
   };
 
@@ -81,17 +102,6 @@ const Signup: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
               <Input
                 id="phoneNumber"
@@ -111,8 +121,8 @@ const Signup: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="verifier">Verifier</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>

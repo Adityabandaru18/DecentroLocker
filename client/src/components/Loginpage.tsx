@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
-import { ethers } from "ethers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Loader2 } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
+import { contractSigner, initializeContract} from "./contractTemplate";
+import useStore from "@/store";
 declare global {
   interface Window {
-    ethereum?: import("ethers").Eip1193Provider | any;
+    ethereum?: import("ethers").Eip1193Provider;
   }
 }
 
@@ -17,6 +18,8 @@ const Login: React.FC = () => {
   const [currentSelected, setCurrentSelected] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
+  const {addWallet} = useStore();
 
   useEffect(() => {
     checkConnected();
@@ -33,6 +36,7 @@ const Login: React.FC = () => {
       } catch (error) {
         setError("Connection Error!");
         setTimeout(() => setError(""), 2000);
+        console.log("Error checking connection:", error);
       }
     } else {
       setError("Please install MetaMask!");
@@ -44,17 +48,15 @@ const Login: React.FC = () => {
     if (window.ethereum) {
       try {
         setIsLoading(true);
-        const provider = new ethers.BrowserProvider(window.ethereum);
         const accounts: string[] = await window.ethereum.request({
           method: "eth_requestAccounts",
         });
         setAccounts(accounts);
         setCurrentSelected(accounts[0]);
-      } catch (error: any) {
-        if (error.code === 4001) {
+      } catch (error: unknown) {
           setError("User refused to connect!");
           setTimeout(() => setError(""), 2000);
-        }
+        
         console.error("Error connecting to MetaMask:", error);
       } finally {
         setIsLoading(false);
@@ -70,19 +72,37 @@ const Login: React.FC = () => {
 
   const connectButtonHandler = async () => {
     setIsLoading(true);
+    let new_role=0;
     if (accounts.includes(currentSelected)) {
-      // Handle existing account connection
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        // Navigate or handle successful connection here
+        await initializeContract(currentSelected);
+        addWallet(currentSelected);
+        const Role = await contractSigner.getRole();
+        new_role = Number(Role);
+        console.log("Role: ", new_role);
+
       } catch (error) {
         console.error("Error connecting with selected account:", error);
       }
     } else {
+      console.log("connecting...")
       await connectWallet();
     }
     setIsLoading(false);
+    console.log("User Role: ", new_role);
+
+    if(new_role == 0){
+       navigate("/signup");
+    }
+    else if(new_role == 1){
+        navigate("/user");
+    }
+    else if(new_role == 2){
+        navigate("/verifier");
+    }
+    else if(new_role == 3){
+        navigate("/admin");
+    }
   };
 
   return (

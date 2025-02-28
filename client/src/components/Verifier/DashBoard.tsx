@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -6,25 +6,40 @@ import { Label } from "../ui/label";
 import { Tabs, TabsContent } from "../ui/tabs";
 import { User, Mail, Phone } from "lucide-react";
 import Navbar from '../Navbar';
+import useStore from '@/store';
+import { initializeContract, contractSigner } from '../contractTemplate';
+const VerifierDashboard = () => {
 
-const UserDashboard: React.FC = () => {
+  const {getUser, getWallet, addUser} = useStore();
+  console.log(getUser);
   const [profile, setProfile] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 000-0000',
-    role: 'User',
+    firstName: getUser().firstName,
+    lastName: getUser().lastName,
+    email: getUser().email,
+    phone: getUser().phoneNumber,
+    role: getUser().role,
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const wallet = getWallet();
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    await initializeContract(wallet);
+    if(profile.role==="user"){
+      await contractSigner.EditUser(profile.firstName, profile.lastName, profile.email, profile.phone);
+    }
+    else if(profile.role==="verifier"){
+      await contractSigner.EditVerifier(profile.firstName, profile.lastName, profile.email, profile.phone);
+    }
+    const new_user = {firstName: profile.firstName, lastName: profile.lastName, email: profile.email, phoneNumber: profile.phone, role: profile.role};
+    addUser(new_user);
+    
     setIsEditing(false);
     console.log('Profile updated:', profile);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfile(prev => ({
       ...prev,
@@ -35,7 +50,7 @@ const UserDashboard: React.FC = () => {
   return (
     <>
     <Navbar />
-    <div className="container mx-auto p-6 max-w-5xl">
+    <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">My Dashboard</h1>
         <p className="text-gray-500">Manage your profile and account settings</p>
@@ -141,4 +156,4 @@ const UserDashboard: React.FC = () => {
   );
 };
 
-export default UserDashboard;
+export default VerifierDashboard;
