@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from Controllers.groq_implementation import PersonalChatBot
 
 app = FastAPI()
-client_chat_bot = PersonalChatBot()
+
 
 class Message(BaseModel):
     role: str
@@ -13,12 +13,8 @@ class Message(BaseModel):
 async def index():
     return "server is running!"
 
-@app.post("/initial")
-async def index():
-    response = client_chat_bot.initial_prompt()
-    return Message(role='assistant', content=response)
-
 @app.post("/chat")
 async def root(new_message: Message):
-    response = client_chat_bot.chat(new_message.content)
+    client_chat_bot = PersonalChatBot()
+    response = client_chat_bot.chat(new_message)
     return Message(role='assistant', content=response)
