@@ -35,12 +35,13 @@ const Signup: React.FC = () => {
       navigate('/user');
     }
     else if(formData.role === "verifier"){
-      await contractSigner.RegisterVerifier(formData.firstName, formData.lastName, formData.email, formData.phoneNumber);
+      await contractSigner.RegisterVerifier(formData.firstName.toString(), formData.lastName.toString(), formData.email.toString(), formData.phoneNumber.toString());
       navigate('/verifier');
     }
     
     else if(formData.role === "admin"){
-      await contractSigner.RegisterAdmin(formData.firstName, formData.lastName, formData.email, formData.phoneNumber);
+      console.log(contractSigner);
+      await contractSigner.RegisterAdmin(formData.firstName.toString(), formData.lastName.toString(), formData.email.toString(), formData.phoneNumber.toString());
       navigate('/admin');
     }
  

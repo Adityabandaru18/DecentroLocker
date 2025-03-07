@@ -77,7 +77,10 @@ const Login: React.FC = () => {
       try {
         await initializeContract(currentSelected);
         addWallet(currentSelected);
+        console.log(contractSigner);
+        console.log(currentSelected);
         const Role = await contractSigner.getRole();
+        console.log(Role);
         new_role = Number(Role);
         console.log("Role: ", new_role);
 
