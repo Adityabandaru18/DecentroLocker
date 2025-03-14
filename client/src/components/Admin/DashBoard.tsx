@@ -8,6 +8,7 @@ import { User, Mail, Phone } from "lucide-react";
 import Navbar from '../Navbar';
 import useStore from '@/store';
 import { initializeContract, contractSigner } from '../contractTemplate';
+import VerifiersList from './VerifiersList';
 
 const AdminDashboard = () => {
 
@@ -153,6 +154,8 @@ const AdminDashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <VerifiersList/>
     </div>
                     </>
   );

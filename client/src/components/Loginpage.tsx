@@ -13,10 +13,39 @@ declare global {
   }
 }
 
+const WaitingModal = ({ isOpen }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md"></div>
+      
+      <div className="bg-white rounded-lg p-8 shadow-lg z-10 max-w-md w-full text-center">
+        <div className="text-6xl mb-4">⏳</div>
+        
+        <h2 className="text-2xl font-bold mb-2">Verification Pending</h2>
+        
+        <p className="mb-6 text-gray-700">
+          Please wait until an administrator approves your verification request.
+        </p>
+        
+        <div className="flex justify-center mb-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+        </div>
+        
+        <p className="text-sm text-gray-500">
+          This process usually takes 1-2 business days. Thank you for your patience.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const Login: React.FC = () => {
   const [accounts, setAccounts] = useState<string[]>([]);
   const [currentSelected, setCurrentSelected] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showWaitingModal, setShowWaitingModal] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   const {addWallet} = useStore();
@@ -77,8 +106,7 @@ const Login: React.FC = () => {
       try {
         await initializeContract(currentSelected);
         addWallet(currentSelected);
-        console.log(contractSigner);
-        console.log(currentSelected);
+
         const Role = await contractSigner.getRole();
         console.log(Role);
         new_role = Number(Role);
@@ -95,18 +123,37 @@ const Login: React.FC = () => {
     console.log("User Role: ", new_role);
 
     if(new_role == 0){
-       navigate("/signup");
+       navigate("/signup");  //Stranger
     }
     else if(new_role == 1){
-        navigate("/user");
+      navigate("/user");
     }
     else if(new_role == 2){
-        navigate("/verifier");
+      setShowWaitingModal(true);      //VerifierPending
     }
     else if(new_role == 3){
+        navigate("/verifier");  //VerifierAccepted
+    }
+    else if(new_role == 4){
         navigate("/admin");
     }
   };
+
+  
+    useEffect(() => {
+      let timer: number;
+      
+      if (showWaitingModal) {
+        timer = window.setTimeout(() => {
+          setShowWaitingModal(false);
+          navigate('/');
+        }, 5000);
+      }
+      
+      return () => {
+        if (timer) clearTimeout(timer);
+      };
+    }, [showWaitingModal, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -163,6 +210,7 @@ const Login: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+      <WaitingModal isOpen={showWaitingModal} />
     </div>
   );
 };
