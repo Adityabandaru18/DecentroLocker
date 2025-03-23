@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { contractABI } from "../../abi.json";
+import {contractABI} from "../contractABI";
 
 const contractAddress: string = import.meta.env.VITE_CONTRACT_ADDRESS || "";
 
