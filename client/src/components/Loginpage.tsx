@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-const WaitingModal = ({ isOpen }) => {
+const WaitingModal: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   return (

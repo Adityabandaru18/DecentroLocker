@@ -14,7 +14,7 @@ import {contractSigner} from "./contractTemplate";
 import { useNavigate } from 'react-router-dom';
 import useStore from '@/store';
 
-const WaitingModal = ({ isOpen }) => {
+const WaitingModal: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   return (

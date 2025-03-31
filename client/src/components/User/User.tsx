@@ -1,13 +1,16 @@
-import  { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "../ui/card";
 import { Button } from "@/components/ui/button";
-import { UploadCloud, FileText, CheckCircle, XCircle, ExternalLink, Clock } from "lucide-react";
+import { UploadCloud, FileText, CheckCircle, XCircle, ExternalLink, Clock, AlertTriangle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import Navbar from '../Navbar';
 import axios from 'axios';
-import { contractSigner, initializeContract } from "../contractTemplate";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // Import Modal Component
+import { contractSigner, initializeContract, dummy_provider } from "../contractTemplate";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import useStore from '@/store';
+import { useNavigate } from "react-router-dom";
+
 interface Document {
   id: number;
   name: string;
@@ -31,11 +34,12 @@ const User = () => {
   });
   const {getWallet} = useStore();
   const wallet = getWallet();
-  console.log(wallet);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [upload, setUpload] = useState(false);
+  const [authError, setAuthError] = useState(false);
+  const navigate = useNavigate();
 
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null); // Track selected document
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [upload,setUpload] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) {
@@ -59,7 +63,7 @@ const User = () => {
         },
       });
   
-      const cid = res.data.IpfsHash; // CID of the uploaded file
+      const cid = res.data.IpfsHash;
       console.log("File uploaded to IPFS, CID:", cid);
   
       const tx = await contractSigner.uploadDocumentsByUser(cid, file.name);
@@ -128,6 +132,19 @@ const User = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
+        if(wallet === undefined || wallet === "") {
+          const provider = await dummy_provider();
+          const role = await provider?.getRole();
+          const new_role = Number(role);
+          if(new_role !== 1) {
+            setAuthError(true);
+            setTimeout(() => {
+              navigate("/");
+            }, 3000); // Redirect after 3 seconds
+            return;
+          }
+        }
+        
         await initializeContract(wallet);
         const docs = await contractSigner.getDocumentsByUser();
         console.log(docs);
@@ -147,13 +164,11 @@ const User = () => {
             cid: doc[1] as string,
           };
   
-        uploadedDocs.push(documentObj);
-        if(doc[2] === 0n || doc[2] === 1n){
-
-          pendingDocs.push(documentObj);
-        }
-          
-        else if (doc[2] === 2n) {
+          uploadedDocs.push(documentObj);
+          if(doc[2] === 0n || doc[2] === 1n){
+            pendingDocs.push(documentObj);
+          }
+          else if (doc[2] === 2n) {
             verifiedDocs.push(documentObj);
           } else if (doc[2] === 3n) {
             rejectedDocs.push(documentObj);
@@ -172,8 +187,23 @@ const User = () => {
     };
   
     fetchDocuments();
-  }, [upload, wallet]); // Re-fetch only when a new document is uploaded
+  }, [upload, wallet,navigate]);
   
+  if (authError) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-90 z-50">
+        <div className="max-w-md w-full">
+          <Alert variant="destructive">
+            <AlertTriangle className="h-6 w-6" />
+            <AlertTitle>Authorization Failed</AlertTitle>
+            <AlertDescription>
+              You do not have permission to access this page. Redirecting to homepage...
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <>
@@ -203,38 +233,38 @@ const User = () => {
         </Card>
 
         <Tabs defaultValue="uploaded" className="w-full mt-5">
-      <TabsList className="grid w-full grid-cols-4 mb-8">
-        <TabsTrigger value="uploaded" className="flex items-center gap-2">
-          <FileText className="h-4 w-4" />
-          Uploaded ({documents.uploaded.length})
-        </TabsTrigger>
-        <TabsTrigger value="pending" className="flex items-center gap-2">
-          <Clock className="h-4 w-4" />
-          Pending ({documents.pending.length})
-        </TabsTrigger>
-        <TabsTrigger value="verified" className="flex items-center gap-2">
-          <CheckCircle className="h-4 w-4" />
-          Verified ({documents.verified.length})
-        </TabsTrigger>
-        <TabsTrigger value="rejected" className="flex items-center gap-2">
-          <XCircle className="h-4 w-4" />
-          Rejected ({documents.rejected.length})
-        </TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="uploaded">
-        <DocumentList documents={documents.uploaded} type="uploaded" />
-      </TabsContent>
-      <TabsContent value="pending">
-        <DocumentList documents={documents.pending} type="pending" />
-      </TabsContent>
-      <TabsContent value="verified">
-        <DocumentList documents={documents.verified} type="verified" />
-      </TabsContent>
-      <TabsContent value="rejected">
-        <DocumentList documents={documents.rejected} type="rejected" />
-      </TabsContent>
-    </Tabs>
+          <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsTrigger value="uploaded" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Uploaded ({documents.uploaded.length})
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Pending ({documents.pending.length})
+            </TabsTrigger>
+            <TabsTrigger value="verified" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Verified ({documents.verified.length})
+            </TabsTrigger>
+            <TabsTrigger value="rejected" className="flex items-center gap-2">
+              <XCircle className="h-4 w-4" />
+              Rejected ({documents.rejected.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="uploaded">
+            <DocumentList documents={documents.uploaded} type="uploaded" />
+          </TabsContent>
+          <TabsContent value="pending">
+            <DocumentList documents={documents.pending} type="pending" />
+          </TabsContent>
+          <TabsContent value="verified">
+            <DocumentList documents={documents.verified} type="verified" />
+          </TabsContent>
+          <TabsContent value="rejected">
+            <DocumentList documents={documents.rejected} type="rejected" />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Modal to view file */}
@@ -255,8 +285,6 @@ const User = () => {
           </Button>
         </DialogContent>
       </Dialog>
-      
-
     </>
   );
 };

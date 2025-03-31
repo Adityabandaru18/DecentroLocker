@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";  // ✅ Import persist middleware
 
 interface User {
   firstName: string;
@@ -18,31 +17,23 @@ interface Main {
   getUser: () => User;
 }
 
-const useStore = create<Main>()(
-  persist(   
-    (set, get) => ({
-      wallet: "",
-      user: {
-        firstName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: "",
-        role: "",
-      },
-      addWallet: (wallet) => {
-        set({ wallet });
-      },
-      getWallet: () => get().wallet,
-      addUser: (user) => {
-        set({ user });
-      },
-      getUser: () => get().user,
-    }),
-    {
-      name: "user-storage", 
-      storage: createJSONStorage(() => localStorage), 
-    }
-  )
-);
+const useStore = create<Main>((set, get) => ({
+  wallet: "",
+  user: {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    role: "",
+  },
+  addWallet: (wallet) => {
+    set({ wallet });
+  },
+  getWallet: () => get().wallet,
+  addUser: (user) => {
+    set({ user });
+  },
+  getUser: () => get().user,
+}));
 
 export default useStore;
