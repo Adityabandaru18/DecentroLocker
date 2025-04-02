@@ -4,6 +4,7 @@ import { Link } from "react-scroll";
 import { Modal } from './components/Modal';
 import { ChatBot } from './components/ChatBot';
 import { Link as RouterLink } from "react-router-dom";
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function Feature({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
   return (
@@ -163,6 +164,7 @@ function App() {
         </footer>
       </div>
       <ChatBot />
+      <SpeedInsights />
     </div>
   );
 }
