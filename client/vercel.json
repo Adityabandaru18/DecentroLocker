@@ -1,13 +1,6 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "package.json",
-            "config": {
-                "distDir": "build"
-            }
-        }
-    ],
+
     "routes": [
         {
             "src": "/(.*)",
