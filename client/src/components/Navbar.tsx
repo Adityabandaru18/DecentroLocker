@@ -2,8 +2,7 @@ import { Lock, User } from "lucide-react"
 import useStore from "@/store"
 import { Link } from "react-router-dom";
 const Navbar = () => {
-  const {getWallet,getUser} = useStore();
-  console.log(getUser().role);
+  const {getWallet} = useStore();
 
   return (
     <nav className=" bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">

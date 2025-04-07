@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import {
   Select,
@@ -12,7 +11,6 @@ import {
 } from "./ui/select";
 import {contractSigner} from "./contractTemplate";
 import { useNavigate } from 'react-router-dom';
-import useStore from '@/store';
 
 const WaitingModal: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   if (!isOpen) return null;
@@ -51,7 +49,6 @@ const Signup: React.FC = () => {
     role: ''
   });
   const [showWaitingModal, setShowWaitingModal] = useState(false);
-  const {addUser} = useStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,34 +68,20 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const new_user = {firstName: formData.firstName, lastName: formData.lastName, email: formData.email, phoneNumber: formData.phoneNumber, role: formData.role};
-    addUser(new_user);
 
     if(formData.role === "user"){
-      await contractSigner.RegisterUser(formData.firstName.toString(), formData.lastName.toString(), formData.email.toString(), formData.phoneNumber.toString());
+      await contractSigner.RegisterUser("user");
       navigate('/user');
     }
     else if(formData.role === "verifier"){
-      await contractSigner.RegisterVerifier(formData.firstName.toString(), formData.lastName.toString(), formData.email.toString(), formData.phoneNumber.toString());
-      // Show waiting modal for 5 seconds
+      await contractSigner.RegisterUser("verifier");
       setShowWaitingModal(true);
     }
-    else if(formData.role === "admin"){
-      console.log(contractSigner);
-      await contractSigner.RegisterAdmin(formData.firstName.toString(), formData.lastName.toString(), formData.email.toString(), formData.phoneNumber.toString());
-      navigate('/admin');
-    }
+
  
     console.log('Form submitted:', formData);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
 
   return (
     <>
@@ -113,51 +96,10 @@ const Signup: React.FC = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    placeholder="John"
-                    required
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    placeholder="Doe"
-                    required
-                    onChange={handleChange}
-                  />
-                </div>
+           
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="john.doe@example.com"
-                  required
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  required
-                  onChange={handleChange}
-                />
-              </div>
+              
 
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
@@ -168,7 +110,6 @@ const Signup: React.FC = () => {
                   <SelectContent>
                     <SelectItem value="user">User</SelectItem>
                     <SelectItem value="verifier">Verifier</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

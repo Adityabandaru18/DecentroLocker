@@ -129,13 +129,13 @@ const Login: React.FC = () => {
       navigate("/user");
     }
     else if(new_role == 2){
-      setShowWaitingModal(true);      //VerifierPending
+      navigate("/verifier");  //VerifierAccepted
     }
     else if(new_role == 3){
-        navigate("/verifier");  //VerifierAccepted
+      navigate("/admin");
     }
-    else if(new_role == 4){
-        navigate("/admin");
+    else if(new_role == 5){
+      setShowWaitingModal(true);      //VerifierPending
     }
   };
 

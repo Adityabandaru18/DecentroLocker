@@ -132,7 +132,9 @@ const User = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
+        console.log(wallet);
         if(wallet === undefined || wallet === "") {
+          console.log("Wallet not connected");
           const provider = await dummy_provider();
           const role = await provider?.getRole();
           const new_role = Number(role);
