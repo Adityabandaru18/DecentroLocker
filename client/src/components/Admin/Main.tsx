@@ -55,7 +55,6 @@ const Admin = () => {
       )
     );
     try {
-      console.log(cid);
       await contractSigner.DocumentVerificationByAdmin(true, cid, "");
     } catch (error) {
       console.error('Error accepting document:', error);
@@ -105,14 +104,13 @@ const Admin = () => {
             setAuthError(true);
             setTimeout(() => {
               navigate("/");
-            }, 3000); // Redirect after 3 seconds
+            }, 3000);
             return;
           }
         }
         
         await initializeContract(wallet);
         const docs = await contractSigner.GetDocumentsByAdmin();
-        console.log(docs);
 
         if (!docs || docs.length === 0) {
           setDocuments([]);

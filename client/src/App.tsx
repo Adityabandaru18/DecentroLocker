@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { Shield, Lock, Share2, Database, Server, UserCircle, ChevronRight } from 'lucide-react';
 import { Link } from "react-scroll";
 import { Modal } from './components/Modal';
-import { ChatBot } from './components/ChatBot';
 import { Link as RouterLink } from "react-router-dom";
 
 function Feature({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
@@ -162,7 +161,6 @@ function App() {
           </div>
         </footer>
       </div>
-      <ChatBot />
     </div>
   );
 }
