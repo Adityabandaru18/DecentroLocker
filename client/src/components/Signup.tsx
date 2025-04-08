@@ -43,10 +43,6 @@ const WaitingModal: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
     role: ''
   });
   const [showWaitingModal, setShowWaitingModal] = useState(false);
@@ -73,8 +69,7 @@ const Signup: React.FC = () => {
     if(formData.role === "user"){
       await contractSigner.RegisterUser(0);
       const filter = contractSigner.filters.UserRegistered(wallet);
-      contractSigner.on(filter, (wallet) => {
-        console.log(wallet + " Registred as user");
+      contractSigner.on(filter, () => {
         navigate('/user');
       });
     }
@@ -84,7 +79,6 @@ const Signup: React.FC = () => {
     }
 
  
-    console.log('Form submitted:', formData);
   };
 
 

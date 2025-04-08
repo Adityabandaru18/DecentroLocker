@@ -108,9 +108,7 @@ const Login: React.FC = () => {
         addWallet(currentSelected);
 
         const Role = await contractSigner.getRole();
-        console.log(Role);
         new_role = Number(Role);
-        console.log("Role: ", new_role);
 
       } catch (error) {
         console.error("Error connecting with selected account:", error);
@@ -120,7 +118,6 @@ const Login: React.FC = () => {
       await connectWallet();
     }
     setIsLoading(false);
-    console.log("User Role: ", new_role);
 
     if(new_role == 0){
        navigate("/signup");  //Stranger

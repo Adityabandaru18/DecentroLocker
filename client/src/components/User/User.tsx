@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import useStore from '@/store';
 import { useNavigate } from "react-router-dom";
-
 interface Document {
   id: number;
   name: string;
@@ -64,7 +63,6 @@ const User = () => {
       });
   
       const cid = res.data.IpfsHash;
-      console.log("File uploaded to IPFS, CID:", cid);
   
       const tx = await contractSigner.uploadDocumentsByUser(cid, file.name);
       await tx.wait();
@@ -132,9 +130,7 @@ const User = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        console.log(wallet);
         if(wallet === undefined || wallet === "") {
-          console.log("Wallet not connected");
           const provider = await dummy_provider();
           const role = await provider?.getRole();
           const new_role = Number(role);
@@ -149,7 +145,6 @@ const User = () => {
         
         await initializeContract(wallet);
         const docs = await contractSigner.getDocumentsByUser();
-        console.log(docs);
   
         const uploadedDocs: Document[] = [];
         const pendingDocs: Document[] = [];

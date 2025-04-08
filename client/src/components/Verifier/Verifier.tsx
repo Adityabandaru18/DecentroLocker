@@ -56,7 +56,6 @@ const Verifier = () => {
       )
     );
     try {
-      console.log(cid);
       await contractSigner.DocumentVerificationByVerifier(true, cid, "");
     } catch (error) {
       console.error('Error accepting document:', error);
@@ -117,7 +116,6 @@ const Verifier = () => {
 
         await initializeContract(wallet);
         const docs = await contractSigner.GetDocumentsByVerfier();
-        console.log(docs);
 
         if (!docs || docs.length === 0) {
           setDocuments([]);

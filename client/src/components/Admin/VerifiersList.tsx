@@ -24,7 +24,6 @@ const VerifiersList = () => {
     try {
       await initializeContract(getWallet());
       const walletAddresses = await contractSigner.GetVerifierRegistrationsByAdmin();
-      console.log("Fetched wallet addresses:", walletAddresses);
 
       const processedVerifiers: Verifier[] = Array.isArray(walletAddresses) 
         ? walletAddresses.map((item, index) => ({
