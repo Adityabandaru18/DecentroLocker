@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Check, X, Search } from 'lucide-react';
 import { initializeContract, contractSigner } from "../contractTemplate";
 import { Input } from '@/components/ui/input';
+import useStore from "@/store";
 
 interface Verifier {
   id: number;
@@ -16,11 +17,12 @@ const VerifiersList = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<Record<number, boolean>>({});
+  const {getWallet} = useStore();
 
   const fetchVerifiers = async () => {
     setIsLoading(true);
     try {
-      await initializeContract("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+      await initializeContract(getWallet());
       const walletAddresses = await contractSigner.GetVerifierRegistrationsByAdmin();
       console.log("Fetched wallet addresses:", walletAddresses);
 
@@ -51,7 +53,7 @@ const VerifiersList = () => {
     setIsProcessing(prev => ({ ...prev, [id]: true }));
     
     try {
-      await initializeContract("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+      await initializeContract(getWallet());
       await contractSigner.VerifierRegistration(verifier.walletAddress, true);
       
       setVerifiers(verifiers.map(verifier =>
@@ -71,7 +73,7 @@ const VerifiersList = () => {
     setIsProcessing(prev => ({ ...prev, [id]: true }));
     
     try {
-      await initializeContract("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+      await initializeContract(getWallet());
       await contractSigner.VerifierRegistration(verifier.walletAddress, false);
       
       setVerifiers(verifiers.map(verifier =>

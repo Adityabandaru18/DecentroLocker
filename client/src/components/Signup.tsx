@@ -11,6 +11,7 @@ import {
 } from "./ui/select";
 import {contractSigner} from "./contractTemplate";
 import { useNavigate } from 'react-router-dom';
+import useStore from "@/store";
 
 const WaitingModal: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   if (!isOpen) return null;
@@ -50,7 +51,7 @@ const Signup: React.FC = () => {
   });
   const [showWaitingModal, setShowWaitingModal] = useState(false);
   const navigate = useNavigate();
-
+  const {getWallet} = useStore();
   useEffect(() => {
     let timer: number;
     
@@ -68,13 +69,17 @@ const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    const wallet = getWallet();
     if(formData.role === "user"){
-      await contractSigner.RegisterUser("user");
-      navigate('/user');
+      await contractSigner.RegisterUser(0);
+      const filter = contractSigner.filters.UserRegistered(wallet);
+      contractSigner.on(filter, (wallet) => {
+        console.log(wallet + " Registred as user");
+        navigate('/user');
+      });
     }
     else if(formData.role === "verifier"){
-      await contractSigner.RegisterUser("verifier");
+      await contractSigner.RegisterUser(1);
       setShowWaitingModal(true);
     }
 

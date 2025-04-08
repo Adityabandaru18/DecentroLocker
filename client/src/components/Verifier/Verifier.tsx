@@ -106,7 +106,7 @@ const Verifier = () => {
           const provider = await dummy_provider();
           const role = await provider?.getRole();
           const new_role = Number(role);
-          if(new_role !== 3) {
+          if(new_role !== 2) {
             setAuthError(true);
             setTimeout(() => {
               navigate("/");
