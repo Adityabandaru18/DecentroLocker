@@ -1,6 +1,5 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { HashRouter as Router, Routes, Route } from "react-router-dom"; // changed here
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; // changed here
 import App from './App.tsx';
 import Login from './components/Loginpage.tsx';
 import Signup from './components/Signup.tsx';
@@ -12,7 +11,7 @@ import './index.css';
 import { ChatBot } from "./components/ChatBot.tsx";
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
     <Router>
       <Routes>
         <Route path="/" element={<App />} />
@@ -25,5 +24,5 @@ createRoot(document.getElementById('root')!).render(
       </Routes>
     </Router>
     <ChatBot />
-  </StrictMode>
+    </>
 );

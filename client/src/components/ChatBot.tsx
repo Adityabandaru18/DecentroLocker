@@ -1,27 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Send, X } from 'lucide-react';
-import bot from "../assets/bot.png"
+import bot from "../assets/bot.png";
 
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Array<{ text: string, isUser: boolean }>>([
-    { text: "Hello! How can I help you today?", isUser: false }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
+  async function fetchBotResponse(content: string) {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URI}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          role: "user",  // Default to 'user'
+          content,       // Pass the content received as input
+        }),
+      });
 
-  const handleSend = () => {
-    if (inputText.trim()) {
-      setMessages([...messages, { text: inputText, isUser: true }]);
-      // Simulate bot response
-      setTimeout(() => {
-        setMessages(prev => [...prev, {
-          text: "Thanks for your message! Our team will get back to you soon.",
-          isUser: false
-        }]);
-      }, 1000);
-      setInputText("");
+      if (!response.ok) {
+        throw new Error("Failed to fetch bot response");
+      }
+
+      const data: Message = await response.json();
+      setMessages( dupMessages => [...dupMessages, data] );  // Add bot response to messages
+    } catch (error) {
+      console.error("Error fetching bot response:", error);
     }
+}
+
+  useEffect(() => {
+    // Call the backend API to fetch the initial message with empty content
+    fetchBotResponse("");
+  }, []); 
+
+  const handleSend = async () => {
+      if (inputText.trim()) {
+        setMessages(dupMessages => [...dupMessages, {role: "user", content: inputText} ]);
+  
+        // Simulate bot response
+        await fetchBotResponse(inputText); 
+  
+        setInputText("");  // Clear input field
+      }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -38,11 +65,7 @@ export function ChatBot() {
           {/* Chat Header */}
           <div className="p-4 border-b flex justify-between items-center bg-indigo-600 rounded-t-lg">
             <div className="flex items-center space-x-2">
-              <img
-                src={bot}
-                alt="ChatBot"
-                className="w-8 h-8"
-              />
+              <img src={bot} alt="ChatBot" className="w-8 h-8" />
               <span className="text-white font-semibold">DigiLocker Assistant</span>
             </div>
             <button
@@ -58,16 +81,16 @@ export function ChatBot() {
             {messages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`max-w-[80%] p-3 rounded-lg ${
-                    message.isUser
+                    message.role === 'user'
                       ? 'bg-indigo-600 text-white rounded-br-none'
                       : 'bg-gray-100 text-gray-800 rounded-bl-none'
                   }`}
                 >
-                  {message.text}
+                  {message.content}
                 </div>
               </div>
             ))}
@@ -80,7 +103,7 @@ export function ChatBot() {
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyPress}
                 placeholder="Type your message..."
                 className="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-600"
               />
@@ -98,11 +121,7 @@ export function ChatBot() {
           onClick={() => setIsOpen(true)}
           className="p-3 animate-bounce"
         >
-          <img
-            src={bot}
-            alt="ChatBot"
-            className="w-12 h-12"
-          />
+          <img src={bot} alt="ChatBot" className="w-12 h-12" />
         </button>
       )}
     </div>

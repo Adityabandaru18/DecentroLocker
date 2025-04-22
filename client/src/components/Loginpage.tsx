@@ -82,6 +82,7 @@ const Login: React.FC = () => {
         });
         setAccounts(accounts);
         setCurrentSelected(accounts[0]);
+        navigate('/login');
       } catch (error: unknown) {
           setError("User refused to connect!");
           setTimeout(() => setError(""), 2000);
@@ -101,7 +102,7 @@ const Login: React.FC = () => {
 
   const connectButtonHandler = async () => {
     setIsLoading(true);
-    let new_role=0;
+    let new_role=null;
     if (accounts.includes(currentSelected)) {
       try {
         await initializeContract(currentSelected);
@@ -118,7 +119,9 @@ const Login: React.FC = () => {
       await connectWallet();
     }
     setIsLoading(false);
-
+    if(new_role == null) {
+      return ;
+    }
     if(new_role == 0){
        navigate("/signup");  //Stranger
     }
