@@ -36,5 +36,5 @@ async def root(new_message: Message):
     return Message(role='assistant', content=response)
 
 if __name__ == '__main__':
-    PORT = int(os.getenv('PORT')) or 10000
-    uvicorn.run("main:app", reload=True)
+    PORT = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
