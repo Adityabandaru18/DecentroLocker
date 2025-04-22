@@ -1,13 +1,7 @@
 from groq import Groq
-from dotenv import find_dotenv, load_dotenv
 import os
 import re
 
-env_path = find_dotenv() or find_dotenv(filename='../.env')
-if not env_path:
-    raise ValueError("Cannot find .env file in current or parent directory")
-
-load_dotenv(env_path)
 
 # Get API key from environment
 api_key = os.getenv('GROQ_API_KEY')
